@@ -29,8 +29,8 @@ if (!$orderId) {
 
 // ---------- Config ----------
 
-$clientId    = '221824db5358d75f20a38abd628122';
-$clientSecret = 'cfsk_ma_test_c2396f942ba6b54192c36e27acef6ed9_1bb935c6';
+$clientId    = 'APPID';
+$clientSecret = 'SECRETID';
 $apiVersion   = '2022-09-01';
 $apiUrl       = "https://sandbox.cashfree.com/pg/orders/$orderId/payments";
 

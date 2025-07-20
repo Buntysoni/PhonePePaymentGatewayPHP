@@ -37,8 +37,8 @@ function logMessage($message) {
 }
 
 function createCashfreeOrder($username, $email, $phone, $amount) {
-    $appId = '221824db5358d75f20a38abd628122';
-    $secretKey = 'cfsk_ma_test_c2396f942ba6b54192c36e27acef6ed9_1bb935c6';
+    $appId = 'APPID';
+    $secretKey = 'SECRETID';
     $orderId = generateUniqueOrderId();
 
     $url = "https://sandbox.cashfree.com/pg/orders";
