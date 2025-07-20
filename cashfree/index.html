@@ -251,14 +251,14 @@ var phoneNumber = document.getElementById("phone-number");
 
 document.getElementById("payBtn").addEventListener("click", function () {
     loader.style.display = 'block';
-    const formData = new FormData();
-    formData.append('name', userName.value);
-    formData.append('Email', email.value);
-    formData.append('Phone', phoneNumber.value);
 
     fetch(`/Cashfree/CreateOrder.php`, {
         method: 'POST',
-        body: formData
+        body: JSON.stringify({
+                    username: userName.value,
+                    phone: phoneNumber.value,
+                    email: email.value
+                })
     })
     .then(res => res.json())
     .then(data => {

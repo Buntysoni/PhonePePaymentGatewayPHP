@@ -134,12 +134,11 @@
 
     successContainer.classList.remove('d-none');
 
-    const formData = new FormData();
-    formData.append('orderId', txnIdParam);
-
     fetch("/Cashfree/VerifyPayment.php", {
         method: "POST",
-        body: formData
+        body: JSON.stringify({
+                    txnid: txnid.textContent
+                })
     })
     .then(response => response.json())
     .then(data => {
@@ -151,7 +150,7 @@
             txnid.classList.remove('d-none');
             successContainer.classList.remove('d-none');
 
-            if (data.order_status === 'PAID') {
+            if (data.wpResponse.state === 'COMPLETED') {
                 successTitle.innerText = "Payment Successful!";
                 successTitle.classList.remove('failed-title');
                 successTitle.classList.add('success-title');
