@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 if (result.paymentDetails) {
-                    window.location.href = "https://localhost:8080/verify?txnId=" + data.order_id;
+                    window.location.href = "/Cashfree/verify?txnId=" + data.order_id;
                 }
             });
             })
