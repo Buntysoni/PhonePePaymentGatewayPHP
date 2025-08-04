@@ -27,11 +27,11 @@ function logMessage($message) {
 
 // Function to get access token
 function getToken() {
-    global $TestTokenUrl;
+    global $LiveTokenUrl;
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => $TestTokenUrl,
+        CURLOPT_URL => $LiveTokenUrl,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -39,7 +39,7 @@ function getToken() {
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => 'client_id=TEST-M22TSYZ1WMZLU_25041&client_version=1&client_secret=NjU4ZjFkZjAtNDY3ZC00NzcyLTg2OGMtM2Q1MmFkOThlOGY2&grant_type=client_credentials',
+        CURLOPT_POSTFIELDS => 'client_id=SU2505222105162650976562&client_version=1&client_secret=09241490-50b2-4570-83ce-22fe4a1feaa3&grant_type=client_credentials',
         CURLOPT_HTTPHEADER => array(
           'Content-Type: application/x-www-form-urlencoded'
         ),
@@ -63,7 +63,7 @@ function getToken() {
 // Function to make payment request
 function makePayment($token, $data) {
 
-    global $TestCheckoutUrl;
+    global $LiveCheckoutUrl;
 
     $amount = $data['amount'];
     $username = $data['username'];
@@ -85,7 +85,7 @@ function makePayment($token, $data) {
             "type" => "PG_CHECKOUT",
             "message" => "Payment message used for collect requests",
             "merchantUrls" => [
-                "redirectUrl" => "http://localhost:8000/success.html?txnId=" . $merchantOrderId
+                "redirectUrl" => "https://jdfindia.com/payments/success.html?txnId=" . $merchantOrderId
             ]
         ]
     ]);
@@ -93,7 +93,7 @@ function makePayment($token, $data) {
     $curl = curl_init();
     
     curl_setopt_array($curl, array(
-        CURLOPT_URL => $TestCheckoutUrl,
+        CURLOPT_URL => $LiveCheckoutUrl,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => $paymentData,

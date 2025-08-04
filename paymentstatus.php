@@ -27,11 +27,11 @@ $LiveOrderUrl = "https://api.phonepe.com/apis/pg/checkout/v2/order/";
 
 // Function to get access token
 function getToken() {
-    global $TestTokenUrl;
+    global $LiveTokenUrl;
 
     $curl = curl_init();    
     curl_setopt_array($curl, array(
-        CURLOPT_URL => $TestTokenUrl,
+        CURLOPT_URL => $LiveTokenUrl,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -39,7 +39,7 @@ function getToken() {
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => 'client_id=TEST-M22TSYZ1WMZLU_25041&client_version=1&client_secret=NjU4ZjFkZjAtNDY3ZC00NzcyLTg2OGMtM2Q1MmFkOThlOGY2&grant_type=client_credentials',
+        CURLOPT_POSTFIELDS => 'client_id=SU2505222105162650976562&client_version=1&client_secret=09241490-50b2-4570-83ce-22fe4a1feaa3&grant_type=client_credentials',
         CURLOPT_HTTPHEADER => array(
           'Content-Type: application/x-www-form-urlencoded'
         ),
@@ -55,11 +55,11 @@ function getToken() {
 
 // Function to check payment status
 function checkStatus($token, $txnid) {
-    global $TestOrderUrl;
+    global $LiveOrderUrl;
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL => $TestOrderUrl . $txnid .'/status',
+      CURLOPT_URL => $LiveOrderUrl . $txnid .'/status',
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_ENCODING => '',
       CURLOPT_MAXREDIRS => 10,
@@ -77,6 +77,57 @@ function checkStatus($token, $txnid) {
     curl_close($curl);
 
     return json_decode($response, true);
+}
+
+// Function to send order status to WordPress API
+function sendToWordPress($orderData) {
+    $wp_api_url = 'https://jdfindia.com/wp-json/custom-api/v1/save-order/';
+
+    $payload = json_encode([
+        'orderId' => $orderData['orderId'],
+        'state' => $orderData['state'],
+        'amount' => $orderData['amount'],
+        'errorCode' => $orderData['errorCode'] ?? null,
+        'metaInfo' => [
+            'udf1' => $orderData['udf1'] ?? '',
+            'udf2' => $orderData['udf2'] ?? '',
+        ]
+    ]);
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $wp_api_url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        ),
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    logMessage("WORDPRESS API RESPONSE: $response");
+
+    return json_decode($response, true);
+}
+
+function isOrderAlreadyProcessed($orderId) {
+    $logFile = __DIR__ . "/processed_orders.txt";
+    $processedOrders = file_exists($logFile) ? file($logFile, FILE_IGNORE_NEW_LINES) : [];
+
+    return in_array($orderId, $processedOrders);
+}
+
+function markOrderAsProcessed($orderId) {
+    $logFile = __DIR__ . "/processed_orders.txt";
+    file_put_contents($logFile, $orderId . PHP_EOL, FILE_APPEND);
 }
 
 // Main Execution
@@ -101,8 +152,19 @@ if ($token) {
             'udf1' => $statusResponse['metaInfo']['udf1'] ?? '',
             'udf2' => $statusResponse['metaInfo']['udf2'] ?? ''
         ];
+
+        // Send data to WordPress API
+        $wpResponse = sendToWordPress($orderData);
+
+        if (!isOrderAlreadyProcessed($orderData['orderId'])) {
+	        if ($orderData['state'] === 'COMPLETED') {
+            $amount = $orderData['amount'] ?? 0;
+            $transactionId = $orderData['orderId'] ?? 'UNKNOWN';
+	        }
+            markOrderAsProcessed($orderData['orderId']);
+        }
         
-        echo json_encode(['status' => 'success', 'wpResponse' => $orderData]);
+        echo json_encode(['status' => 'success', 'wpResponse' => $wpResponse]);
     } else {
         logMessage("ERROR: Invalid response from PhonePe");
         echo json_encode(["error" => "Invalid response from PhonePe"]);

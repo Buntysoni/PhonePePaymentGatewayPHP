@@ -1,59 +1,727 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PhonePe Payment Gateway Integration | Guruji Gyan</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate | JD Foundation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {background-image: url(background.webp);font-family: Arial, sans-serif;margin: 0;height: 100vh;display: flex;justify-content: center;align-items: center;background-size: cover;}.payment-container {margin: 10px;background: white;border-radius: 16px;padding: 2rem;width: 90%;max-width: 400px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);}.loading {display: none;text-align: center;margin-top: 10px;}.loading-spinner {width: 30px;height: 30px;border: 3px solid #f3f3f3;border-top: 3px solid #5f259f;border-radius: 50%;animation: spin 1s linear infinite;margin: 0 auto 10px;}@keyframes spin {0% {transform: rotate(0deg);}100% {transform: rotate(360deg);}}.logo-container {width: 60px;height: 60px;background: #fff;border-radius: 50%;display: flex;justify-content: center;align-items: center;margin: -50px auto 20px;}.logo {color: white;font-size: 24px;font-weight: bold;width: 45px;}.paying-text {text-align: center;color: #666;margin-bottom: 8px;}.company-name {text-align: center;font-size: 24px;font-weight: bold;color: #333;margin-bottom: 16px;}.amount {text-align: center;color: #666;margin-bottom: 24px;}.input-group {margin-bottom: 16px;}.input-group label {display: block;color: #666;margin-bottom: 8px;}.input-field {width: 100%;padding: 12px;border: 1px solid #ddd;border-radius: 8px;box-sizing: border-box;font-size: 16px;}.phone-input {display: flex;align-items: center;}.country-code {padding: 12px;background: #f5f5f5;border: 1px solid #ddd;border-radius: 8px 0 0 8px;border-right: none;}.phone-field {border-radius: 0 8px 8px 0;}.coupon-container {display: flex;align-items: center;gap: 8px;margin-bottom: 24px;}.coupon-field-container {display: none;margin-bottom: 24px;}.coupon-field-container.visible {display: block;}.coupon-status {margin-top: 8px;font-size: 14px;}.success-message {color: #2e7d32;}.error-message {color: #d32f2f;}.phonepe-button {width: 100%;padding: 16px;background: #5f259f;color: white;border: none;border-radius: 8px;font-size: 16px;font-weight: bold;cursor: pointer;transition: background-color 0.2s;display: flex;align-items: center;justify-content: center;gap: 10px;}.phonepe-button:hover {background: #4a1e9e;}.phonepe-button:disabled {background: #cccccc;cursor: not-allowed;}.phonepe-logo {height: 24px;width: auto;}#error-message {color: #d32f2f;margin-top: 10px;text-align: center;display: none;}.original-amount {text-decoration: line-through;color: #999;margin-right: 8px;}.success-container {background: white;border-radius: 16px;padding: 2rem;width: 90%;max-width: 400px;text-align: center;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);position: relative;}.hidden {display: none;}.success-icon {width: 80px;height: 80px;background: #4CAF50;border-radius: 50%;display: flex;justify-content: center;align-items: center;margin: 0 auto 20px;color: white;font-size: 40px;}.success-title {color: #2e7d32;font-size: 24px;margin-bottom: 10px;}.loader-overlay {position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.8);display: flex;justify-content: center;align-items: center;border-radius: 15px;}.spinner {width: 50px;height: 50px;border: 5px solid #f3f3f3;border-top: 5px solid #3498db;border-radius: 50%;animation: spin 1s linear infinite;}.transaction-id {color: #666;margin-bottom: 20px;}.home-button {padding: 12px 24px;background: #7b2cbf;color: white;border: none;border-radius: 8px;font-size: 16px;cursor: pointer;text-decoration: none;display: inline-block;}.d-none {display: none;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 50%, #fdf2f8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .payment-container {
+            width: 100%;
+            max-width: 28rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: white;
+        }
+
+        .logo-container {
+            width: 4rem;
+            height: 4rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-icon {
+            color: #7c3aed;
+            font-size: 2rem;
+        }
+
+        .paying-text {
+            color: rgba(196, 181, 253, 0.8);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .company-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+
+        .donate-text {
+            color: rgba(196, 181, 253, 0.9);
+            font-size: 0.875rem;
+        }
+
+        .content {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 3rem;
+            padding: 0 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .phone-input {
+            display: flex;
+        }
+
+        .country-code {
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-right: none;
+            border-radius: 0.5rem 0 0 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .phone-field {
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        .amount-display {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .amount-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .amount-value {
+            color: #7c3aed;
+        }
+
+        .amount-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .amount-btn {
+            height: 3rem;
+            border: 2px solid #e0e7ff;
+            background: white;
+            color: #7c3aed;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .amount-btn:hover {
+            background: #f3f4f6;
+            border-color: #c4b5fd;
+        }
+
+        .amount-btn.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: white;
+            border-color: #7c3aed;
+            box-shadow: 0 4px 14px 0 rgba(124, 58, 237, 0.39);
+        }
+
+        .custom-amount {
+            text-align: center;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox {
+            width: 1rem;
+            height: 1rem;
+            accent-color: #7c3aed;
+        }
+
+        .checkbox-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #7c3aed;
+            cursor: pointer;
+        }
+
+        .bank-details {
+            display: none;
+            background: linear-gradient(135deg, #f3e8ff 0%, #fdf2f8 100%);
+            border: 1px solid #e0e7ff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .bank-details.show {
+            display: block;
+        }
+
+        .bank-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #6b21a8;
+            margin-bottom: 1rem;
+        }
+
+        .bank-info {
+            display: grid;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .bank-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bank-label {
+            color: #6b7280;
+        }
+
+        .bank-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .bank-note {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid #e0e7ff;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .whatsapp-link {
+            color: #16a34a;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .whatsapp-link:hover {
+            text-decoration: underline;
+        }
+
+        .pay-button {
+            width: 100%;
+            height: 3.5rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px 0 rgba(124, 58, 237, 0.39);
+            margin-bottom: 1rem;
+        }
+
+        .pay-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px 0 rgba(124, 58, 237, 0.4);
+        }
+
+        .pay-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .security-badge {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .security-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .success-container {
+            display: none;
+            width: 100%;
+            max-width: 28rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .success-container.show {
+            display: block;
+        }
+
+        .success-icon {
+            width: 5rem;
+            height: 5rem;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .success-check {
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-subtitle {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+
+        .transaction-info {
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .transaction-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-id {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .home-button {
+            width: 100%;
+            height: 3rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .home-button:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+            transform: translateY(-1px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #7c3aed;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .payment-container {
+                max-width: 100%;
+            }
+
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .company-name {
+                font-size: 1.125rem;
+            }
+
+            .amount-buttons {
+                gap: 0.5rem;
+            }
+
+            .amount-btn {
+                height: 2.5rem;
+                font-size: 0.875rem;
+            }
+
+            .bank-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .success-container {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="payment-container">
-        <div class="logo-container">
-            <img src="phonepe-logo.png" class="logo" alt="Logo">
+    <!-- Payment Form -->
+    <div class="payment-container" id="payment-form">
+        <div class="header">
+            <div class="logo-container">
+                <i class="fas fa-heart logo-icon"></i>
+            </div>
+            <p class="paying-text">Paying</p>
+            <h1 class="company-name">JD Foundation</h1>
+            <p class="donate-text">Donate Now</p>
         </div>
-        <p class="paying-text">Paying</p>
-        <h1 class="company-name">PhonePe Payment Gateway Integration PHP</h1>
-        <p class="amount">Amount Payable: <span id="amount-display">₹ 100.00</span></p>
-        <div class="input-group">
-            <label>Enter your name</label>
-            <input type="text" class="input-field" id="user-name" placeholder="Full Name">
-        </div>
-        <div class="input-group">
-            <label>Enter your phone number</label>
-            <div class="phone-input">
-                <span class="country-code">+91</span>
-                <input type="tel" class="input-field phone-field" id="phone-number" placeholder="Enter your number">
+
+        <div class="content">
+            <!-- User Information -->
+            <div class="form-group">
+                <label class="label" for="user-name">
+                    <i class="fas fa-user"></i>
+                    Full Name
+                </label>
+                <input type="text" class="input-field" id="user-name" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label class="label" for="phone-number">
+                    <i class="fas fa-phone"></i>
+                    Phone Number
+                </label>
+                <div class="phone-input">
+                    <div class="country-code">+91</div>
+                    <input type="tel" class="input-field phone-field" id="phone-number" placeholder="Enter your phone number">
+                </div>
+            </div>
+
+            <!-- Amount Selection -->
+            <div class="form-group">
+                <div class="amount-display">
+                    <p class="amount-text">Amount Payable: <span class="amount-value" id="amount-display">₹100.00</span></p>
+                </div>
+
+                <label class="label">Select Amount</label>
+                <div class="amount-buttons">
+                    <button type="button" class="amount-btn active" data-amount="100">₹100</button>
+                    <button type="button" class="amount-btn" data-amount="500">₹500</button>
+                    <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
+                </div>
+                <input type="number" class="input-field custom-amount" id="amount-input" min="1" value="100" placeholder="Enter custom amount">
+            </div>
+
+            <!-- Manual Payment Option -->
+            <div class="checkbox-container">
+                <input type="checkbox" class="checkbox" id="manual-payment">
+                <label class="checkbox-label" for="manual-payment">Want Manual Payment?</label>
+            </div>
+
+            <div class="bank-details" id="bank-details">
+                <h3 class="bank-title">
+                    <i class="fas fa-building"></i>
+                    Bank Details
+                </h3>
+                <div class="bank-info">
+                    <div class="bank-row">
+                        <span class="bank-label">Bank Name:</span>
+                        <span class="bank-value">State Bank of India</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Account Name:</span>
+                        <span class="bank-value">Janti Devi Foundations</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Account Number:</span>
+                        <span class="bank-value">1234567890</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">IFSC Code:</span>
+                        <span class="bank-value">SBIN0001234</span>
+                    </div>
+                    <div class="bank-row">
+                        <span class="bank-label">Branch:</span>
+                        <span class="bank-value">Jaipur Main</span>
+                    </div>
+                </div>
+                <div class="bank-note">
+                    After payment, please share your transaction details on WhatsApp: 
+                    <a href="https://wa.me/918901242757" class="whatsapp-link">+91-89012-42757</a>
+                </div>
+            </div>
+
+            <!-- Payment Button -->
+            <button type="button" class="pay-button" id="pay-button">
+                <i class="fas fa-credit-card"></i>
+                MAKE PAYMENT
+            </button>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <div class="security-dot"></div>
+                Secured by PhonePe Payment Gateway
             </div>
         </div>
-        <div class="coupon-container d-none">
-            <input type="checkbox" id="coupon">
-            <label for="coupon">Have a coupon code?</label>
-        </div>
-        <div class="coupon-field-container" id="coupon-field-container">
-            <input type="text" class="input-field" id="coupon-code" placeholder="Enter coupon code">
-            <div class="coupon-status" id="coupon-status"></div>
-        </div>
-        <div id="error-message"></div>
-        <button type="button" id="pay-button" class="phonepe-button">
-            <i class="fa fa-credit-card"></i>
-            MAKE PAYMENT
-        </button>
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p>Processing payment...</p>
-        </div>
     </div>
-    <div class="success-container d-none">
-        <div id="paymentStatus">
-            <div class="success-icon">✓</div>
-            <h1 class="success-title">Payment Successful!</h1>
-            <p class="transaction-id">Transaction ID: <span id="txn-id"></span></p>
+
+    <!-- Success Page -->
+    <div class="success-container" id="success-page">
+        <div class="success-icon">
+            <i class="fas fa-check success-check"></i>
         </div>
-        <a onclick="window.location.reload()" class="home-button">Back to Home</a>
+        <h1 class="success-title">Payment Successful!</h1>
+        <p class="success-subtitle">Thank you for your generous donation</p>
+        <div class="transaction-info">
+            <p class="transaction-label">Transaction ID</p>
+            <p class="transaction-id" id="transaction-id"></p>
+        </div>
+        <button class="home-button" onclick="window.location.reload()">Back to Home</button>
     </div>
-    <script src="site.js?v=1.0.3"></script>
+
+    <script>
+        // DOM Elements
+        const userNameInput = document.getElementById('user-name');
+        const phoneNumberInput = document.getElementById('phone-number');
+        const amountInput = document.getElementById('amount-input');
+        const amountDisplay = document.getElementById('amount-display');
+        const amountButtons = document.querySelectorAll('.amount-btn');
+        const manualPaymentCheckbox = document.getElementById('manual-payment');
+        const bankDetails = document.getElementById('bank-details');
+        const payButton = document.getElementById('pay-button');
+        const loading = document.getElementById('loading');
+        const paymentForm = document.getElementById('payment-form');
+        const successPage = document.getElementById('success-page');
+        const transactionIdElement = document.getElementById('transaction-id');
+
+        let currentAmount = 100;
+
+        // Initialize
+        updatePayButtonState();
+
+        // Amount button handlers
+        amountButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const amount = parseInt(this.dataset.amount);
+                selectAmount(amount);
+            });
+        });
+
+        // Custom amount input handler
+        amountInput.addEventListener('input', function() {
+            const value = parseFloat(this.value) || 0;
+            currentAmount = value;
+            updateAmountDisplay();
+            updateActiveButton();
+            updatePayButtonState();
+        });
+
+        // Manual payment checkbox handler
+        manualPaymentCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                bankDetails.classList.add('show');
+            } else {
+                bankDetails.classList.remove('show');
+            }
+        });
+
+        // Pay button handler
+        payButton.addEventListener('click', function() {
+            if (isFormValid()) {
+                processPayment();
+            }
+        });
+
+        // Form input handlers
+        userNameInput.addEventListener('input', updatePayButtonState);
+        phoneNumberInput.addEventListener('input', updatePayButtonState);
+
+        // Functions
+        function selectAmount(amount) {
+            currentAmount = amount;
+            amountInput.value = amount;
+            updateAmountDisplay();
+            updateActiveButton();
+            updatePayButtonState();
+        }
+
+        function updateAmountDisplay() {
+            amountDisplay.textContent = `₹${currentAmount.toFixed(2)}`;
+        }
+
+        function updateActiveButton() {
+            amountButtons.forEach(button => {
+                button.classList.remove('active');
+                if (parseInt(button.dataset.amount) === currentAmount) {
+                    button.classList.add('active');
+                }
+            });
+        }
+
+        function updatePayButtonState() {
+            const isValid = isFormValid();
+            payButton.disabled = !isValid;
+        }
+
+        function isFormValid() {
+            const userName = userNameInput.value.trim();
+            const phoneNumber = phoneNumberInput.value.trim();
+            const amount = currentAmount;
+
+            return userName && phoneNumber && amount > 0;
+        }
+
+        function processPayment() {
+            // Show loading state
+            payButton.style.display = 'none';
+            loading.classList.add('show');
+
+            fetch("payment.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    amount: currentAmount * 100,
+                    username: userNameInput.value,
+                    phone: phoneNumberInput.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirectUrl) {
+                    // showSuccessPage();
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert("Payment initiation failed!");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function showSuccessPage() {
+            // Generate transaction ID
+            const transactionId = `TXN${Date.now()}`;
+            transactionIdElement.textContent = transactionId;
+
+            // Hide payment form and show success page
+            paymentForm.style.display = 'none';
+            successPage.classList.add('show');
+        }
+
+        // Initialize amount display
+        updateAmountDisplay();
+    </script>
 </body>
 </html>

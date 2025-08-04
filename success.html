@@ -110,7 +110,7 @@
         </div>
         <h1 class="success-title" id="success-title"></h1>
         <p class="transaction-id">Transaction ID: <span id="txn-id"></span></p>
-        <a href="/phonepe" class="home-button">Back to Home</a>
+        <a href="/payments" class="home-button">Back to Home</a>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -146,7 +146,7 @@
                         successIcon.classList.add('failed-icon');
                         successIcon.classList.remove('success-icon');
                         successIcon.classList.remove('bg-success');
-                        txnid.textContent = data.wpResponse.orderId;
+                        txnid.textContent = data.wpResponse.order_id;
                         loader.style.display = 'none';
                         checkmark.classList.remove('d-none');
                         txnid.classList.remove('d-none');
@@ -161,7 +161,7 @@
                         successIcon.classList.remove('failed-icon');
                         successIcon.classList.add('success-icon');
                         successIcon.classList.add('bg-success');
-                        txnid.textContent = data.wpResponse.orderId;
+                        txnid.textContent = data.wpResponse.order_id;
                         loader.style.display = 'none';
                         checkmark.classList.remove('d-none');
                         txnid.classList.remove('d-none');
