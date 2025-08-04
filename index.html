@@ -504,17 +504,26 @@
 
             <!-- Amount Selection -->
             <div class="form-group">
-                <div class="amount-display">
-                    <p class="amount-text">Amount Payable: <span class="amount-value" id="amount-display">₹100.00</span></p>
-                </div>
+            <div class="amount-display">
+                <p class="amount-text">Amount Payable: <span class="amount-value" id="amount-display">₹100.00</span></p>
+            </div>
 
-                <label class="label">Select Amount</label>
-                <div class="amount-buttons">
-                    <button type="button" class="amount-btn active" data-amount="100">₹100</button>
-                    <button type="button" class="amount-btn" data-amount="500">₹500</button>
-                    <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
-                </div>
-                <input type="number" class="input-field custom-amount" id="amount-input" min="1" value="100" placeholder="Enter custom amount">
+            <label class="label">Select Amount</label>
+            <div class="amount-buttons">
+                <button type="button" class="amount-btn active" data-amount="100">₹100</button>
+                <button type="button" class="amount-btn" data-amount="500">₹500</button>
+                <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
+            </div>
+            <input type="number" class="input-field custom-amount" id="amount-input" min="1" value="100" placeholder="Enter custom amount">
+            <!-- PAN Card Field (hidden by default) -->
+            <div class="form-group" id="pan-group" style="display:none; margin-top:1rem;">
+                <label class="label" for="pan-card">
+                    <i class="fas fa-id-card"></i>
+                    PAN Card Number <span style="color:red">*</span>
+                </label>
+                <input type="text" class="input-field" id="pan-card" placeholder="Enter your PAN card number" maxlength="10" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+                <span id="pan-error" style="color:red; font-size:0.8rem; display:none;">Please enter a valid Indian PAN card number (e.g. ABCDE1234F)</span>
+            </div>
             </div>
 
             <!-- Manual Payment Option -->
@@ -604,6 +613,9 @@
         const paymentForm = document.getElementById('payment-form');
         const successPage = document.getElementById('success-page');
         const transactionIdElement = document.getElementById('transaction-id');
+        const panGroup = document.getElementById('pan-group');
+        const panCardInput = document.getElementById('pan-card');
+        const panError = document.getElementById('pan-error');
 
         let currentAmount = 100;
 
@@ -625,6 +637,7 @@
             updateAmountDisplay();
             updateActiveButton();
             updatePayButtonState();
+            togglePanField();
         });
 
         // Manual payment checkbox handler
@@ -646,6 +659,12 @@
         // Form input handlers
         userNameInput.addEventListener('input', updatePayButtonState);
         phoneNumberInput.addEventListener('input', updatePayButtonState);
+        if (panCardInput) {
+            panCardInput.addEventListener('input', function() {
+                validatePan();
+                updatePayButtonState();
+            });
+        }
 
         // Functions
         function selectAmount(amount) {
@@ -654,6 +673,7 @@
             updateAmountDisplay();
             updateActiveButton();
             updatePayButtonState();
+            togglePanField();
         }
 
         function updateAmountDisplay() {
@@ -669,6 +689,28 @@
             });
         }
 
+        function togglePanField() {
+            if (currentAmount > 10000) {
+                panGroup.style.display = 'block';
+            } else {
+                panGroup.style.display = 'none';
+                panCardInput.value = '';
+                panError.style.display = 'none';
+            }
+        }
+
+        function validatePan() {
+            const pan = panCardInput.value.trim().toUpperCase();
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            if (!panRegex.test(pan)) {
+                panError.style.display = 'block';
+                return false;
+            } else {
+                panError.style.display = 'none';
+                return true;
+            }
+        }
+
         function updatePayButtonState() {
             const isValid = isFormValid();
             payButton.disabled = !isValid;
@@ -678,7 +720,13 @@
             const userName = userNameInput.value.trim();
             const phoneNumber = phoneNumberInput.value.trim();
             const amount = currentAmount;
-
+            if (amount > 10000) {
+                const pan = panCardInput.value.trim().toUpperCase();
+                const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                if (!pan || !panRegex.test(pan)) {
+                    return false;
+                }
+            }
             return userName && phoneNumber && amount > 0;
         }
 
@@ -687,16 +735,21 @@
             payButton.style.display = 'none';
             loading.classList.add('show');
 
+            const payload = {
+                amount: currentAmount * 100,
+                username: userNameInput.value,
+                phone: phoneNumberInput.value
+            };
+            if (currentAmount > 10000) {
+                payload.username = payload.username + " PAN:" + panCardInput.value.trim().toUpperCase();
+            }
+
             fetch("payment.php", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    amount: currentAmount * 100,
-                    username: userNameInput.value,
-                    phone: phoneNumberInput.value
-                })
+                body: JSON.stringify(payload)
             })
             .then(response => response.json())
             .then(data => {
@@ -722,6 +775,7 @@
 
         // Initialize amount display
         updateAmountDisplay();
+        togglePanField();
     </script>
 </body>
 </html>

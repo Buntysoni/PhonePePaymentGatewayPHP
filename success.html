@@ -111,9 +111,16 @@
         <h1 class="success-title" id="success-title"></h1>
         <p class="transaction-id">Transaction ID: <span id="txn-id"></span></p>
         <a href="/payments" class="home-button">Back to Home</a>
+        <button id="download-invoice" class="home-button d-none" style="margin-top:1rem;">Download Invoice</button>
+        <div id="invoice-data" style="display:none;"></div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+    // Load jsPDF from CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    document.head.appendChild(script);
+
+    document.addEventListener('DOMContentLoaded', function () {
         const successContainer = document.getElementById('success-container');
         const successIcon = document.getElementById('success-icon');
         const successTitle = document.getElementById('success-title');
@@ -124,6 +131,8 @@
 
         const loader = document.getElementById('loader');
         const checkmark = document.getElementById('checkmark');
+        const downloadBtn = document.getElementById('download-invoice');
+        const invoiceDataDiv = document.getElementById('invoice-data');
         successContainer.classList.remove('d-none');
 
         fetch("paymentstatus.php", {
@@ -166,6 +175,45 @@
                         checkmark.classList.remove('d-none');
                         txnid.classList.remove('d-none');
                         successContainer.classList.remove('d-none');
+
+                        // Show Download Invoice button
+                        downloadBtn.classList.remove('d-none');
+
+                        // Prepare invoice data
+                        // You may need to adjust these fields based on your backend response
+                        const invoice = {
+                            company: 'JD Foundation',
+                            companyEmail: 'info@jdfoundation.org',
+                            companyPhone: '+91-89012-42757',
+                            userName: data.wpResponse.username || 'N/A',
+                            userPhone: data.wpResponse.phone || 'N/A',
+                            amount: data.wpResponse.amount ? (parseInt(data.wpResponse.amount)/100).toFixed(2) : 'N/A',
+                            txnId: data.wpResponse.order_id || txnid.textContent,
+                            date: new Date().toLocaleString()
+                        };
+                        invoiceDataDiv.textContent = JSON.stringify(invoice);
+
+                        // Download PDF handler
+                        downloadBtn.onclick = function() {
+                            if (!window.jspdf && !window.jspdf?.jsPDF) {
+                                alert('PDF library not loaded yet. Please wait a moment and try again.');
+                                return;
+                            }
+                            const { jsPDF } = window.jspdf;
+                            const doc = new jsPDF();
+                            doc.setFontSize(16);
+                            doc.text('Invoice', 105, 20, {align: 'center'});
+                            doc.setFontSize(12);
+                            doc.text(`Company Name: ${invoice.company}`, 20, 40);
+                            doc.text(`Company Email: ${invoice.companyEmail}`, 20, 48);
+                            doc.text(`Company Phone: ${invoice.companyPhone}`, 20, 56);
+                            doc.text(`User Name: ${invoice.userName}`, 20, 70);
+                            doc.text(`User Phone: ${invoice.userPhone}`, 20, 78);
+                            doc.text(`Amount: ₹${invoice.amount}`, 20, 86);
+                            doc.text(`Transaction ID: ${invoice.txnId}`, 20, 94);
+                            doc.text(`Date: ${invoice.date}`, 20, 102);
+                            doc.save(`Invoice_${invoice.txnId}.pdf`);
+                        };
                     }, 300);
                 }
             })
