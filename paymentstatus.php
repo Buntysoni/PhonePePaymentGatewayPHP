@@ -156,14 +156,18 @@ if ($token) {
         // Send data to WordPress API
         $wpResponse = sendToWordPress($orderData);
 
-        if (!isOrderAlreadyProcessed($orderData['orderId'])) {
+        if (isOrderAlreadyProcessed($orderData['orderId']) == '1') {
 	        if ($orderData['state'] === 'COMPLETED') {
-            $amount = $orderData['amount'] ?? 0;
-            $transactionId = $orderData['orderId'] ?? 'UNKNOWN';
+                $amount = $orderData['amount'] ?? 0;
+                $transactionId = $orderData['orderId'] ?? 'UNKNOWN';
+
+                $wpResponse["username"] = $orderData['udf1'] ?? 'Unknown User';
+                $wpResponse["phone"] = $orderData['udf2'] ?? 'Unknown Phone';
+                $wpResponse["amount"] = $amount;
 	        }
             markOrderAsProcessed($orderData['orderId']);
         }
-        
+        $wpResponse["state"] = $orderData['state'];
         echo json_encode(['status' => 'success', 'wpResponse' => $wpResponse]);
     } else {
         logMessage("ERROR: Invalid response from PhonePe");

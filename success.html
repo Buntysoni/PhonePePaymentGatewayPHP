@@ -180,40 +180,140 @@
                         downloadBtn.classList.remove('d-none');
 
                         // Prepare invoice data
-                        // You may need to adjust these fields based on your backend response
-                        const invoice = {
-                            company: 'JD Foundation',
-                            companyEmail: 'info@jdfoundation.org',
-                            companyPhone: '+91-89012-42757',
-                            userName: data.wpResponse.username || 'N/A',
-                            userPhone: data.wpResponse.phone || 'N/A',
-                            amount: data.wpResponse.amount ? (parseInt(data.wpResponse.amount)/100).toFixed(2) : 'N/A',
-                            txnId: data.wpResponse.order_id || txnid.textContent,
-                            date: new Date().toLocaleString()
-                        };
-                        invoiceDataDiv.textContent = JSON.stringify(invoice);
+const invoice = {
+    company: 'JD Foundation',
+    companyEmail: 'Jantrifoundation@gmail.com',
+    companyPhone: '+91-89012-42757',
+    userName: data.wpResponse.username || 'N/A',
+    userPhone: data.wpResponse.phone || 'N/A',
+    amount: data.wpResponse.amount ? (parseInt(data.wpResponse.amount)/100).toFixed(2) : 'N/A',
+    txnId: data.wpResponse.order_id || txnid.textContent,
+    date: new Date().toLocaleString()
+};
+invoiceDataDiv.textContent = JSON.stringify(invoice);
 
-                        // Download PDF handler
-                        downloadBtn.onclick = function() {
-                            if (!window.jspdf && !window.jspdf?.jsPDF) {
-                                alert('PDF library not loaded yet. Please wait a moment and try again.');
-                                return;
-                            }
-                            const { jsPDF } = window.jspdf;
-                            const doc = new jsPDF();
-                            doc.setFontSize(16);
-                            doc.text('Invoice', 105, 20, {align: 'center'});
-                            doc.setFontSize(12);
-                            doc.text(`Company Name: ${invoice.company}`, 20, 40);
-                            doc.text(`Company Email: ${invoice.companyEmail}`, 20, 48);
-                            doc.text(`Company Phone: ${invoice.companyPhone}`, 20, 56);
-                            doc.text(`User Name: ${invoice.userName}`, 20, 70);
-                            doc.text(`User Phone: ${invoice.userPhone}`, 20, 78);
-                            doc.text(`Amount: ₹${invoice.amount}`, 20, 86);
-                            doc.text(`Transaction ID: ${invoice.txnId}`, 20, 94);
-                            doc.text(`Date: ${invoice.date}`, 20, 102);
-                            doc.save(`Invoice_${invoice.txnId}.pdf`);
-                        };
+// Enhanced PDF generation with professional design
+downloadBtn.onclick = function() {
+    if (!window.jspdf && !window.jspdf?.jsPDF) {
+        alert('PDF library not loaded yet. Please wait a moment and try again.');
+        return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Colors
+    const primaryColor = [41, 128, 185]; // Blue
+    const secondaryColor = [52, 73, 94]; // Dark gray
+    const lightGray = [236, 240, 241];
+    const darkGray = [127, 140, 141];
+    
+    // Header background
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 35, 'F');
+    
+    // Company logo area (placeholder circle)
+    doc.setFillColor(255, 255, 255);
+    doc.circle(25, 17, 8, 'F');
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('JD', 25, 20, {align: 'center'});
+    
+    // Company name in header
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont(undefined, 'bold');
+    doc.text('JD FOUNDATION', 40, 20);
+    
+    // Invoice title
+    doc.setFontSize(16);
+    doc.text('INVOICE', 170, 20);
+    
+    // Company details section
+    doc.setTextColor(...lightGray);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Email: ' + invoice.companyEmail, 40, 28);
+    doc.text('Phone: ' + invoice.companyPhone, 40, 32);
+    
+    // Invoice details box
+    doc.setFillColor(...lightGray);
+    doc.rect(140, 45, 60, 25, 'F');
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.text('Invoice Details', 145, 52);
+    doc.setFont(undefined, 'normal');
+    doc.text('Invoice #: ' + invoice.txnId.substring(0, 8), 145, 58);
+    doc.text('Date: ' + new Date().toLocaleDateString(), 145, 64);
+    
+    // Bill to section
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('BILL TO:', 20, 85);
+    
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'normal');
+    doc.text(invoice.userName, 20, 95);
+    doc.text('Phone: ' + invoice.userPhone, 20, 103);
+    
+    // Transaction details table header
+    doc.setFillColor(...primaryColor);
+    doc.rect(20, 120, 170, 12, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    doc.text('Description', 25, 128);
+    doc.text('Transaction ID', 90, 128);
+    doc.text('Amount', 160, 128);
+    
+    // Transaction details table content
+    doc.setFillColor(255, 255, 255);
+    doc.rect(20, 132, 170, 15, 'F');
+    doc.setDrawColor(...lightGray);
+    doc.rect(20, 132, 170, 15, 'S');
+    
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Payment Transaction', 25, 140);
+    doc.text(invoice.txnId, 90, 140);
+    doc.text('INR ' + invoice.amount, 160, 140);
+    
+    // Total section
+    doc.setFillColor(...lightGray);
+    doc.rect(130, 155, 60, 25, 'F');
+    doc.setTextColor(...secondaryColor);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    doc.text('TOTAL AMOUNT', 135, 165);
+    doc.setFontSize(16);
+    doc.setTextColor(...primaryColor);
+    doc.text('INR ' + invoice.amount, 135, 175);
+    
+    // Thank you note
+    doc.setTextColor(...darkGray);
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'italic');
+    doc.text('Thank you for your payment!', 105, 200, {align: 'center'});
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'normal');
+    doc.text('This is a computer generated invoice.', 105, 270, {align: 'center'});
+    doc.text('For any queries, please contact us at ' + invoice.companyEmail, 105, 275, {align: 'center'});
+    
+    // Add border to the entire document
+    doc.setDrawColor(...lightGray);
+    doc.setLineWidth(0.5);
+    doc.rect(10, 40, 190, 230, 'S');
+    
+    // Save the PDF
+    doc.save(`Invoice_${invoice.txnId}.pdf`);
+};
                     }, 300);
                 }
             })
