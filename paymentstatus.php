@@ -156,8 +156,10 @@ if ($token) {
         // Send data to WordPress API
         $wpResponse = sendToWordPress($orderData);
 
-        if (isOrderAlreadyProcessed($orderData['orderId']) == '1') {
-	        if ($orderData['state'] === 'COMPLETED') {
+        if (isOrderAlreadyProcessed($orderData['orderId']) == '0') {
+            markOrderAsProcessed($orderData['orderId']);
+        }
+         if ($orderData['state'] === 'COMPLETED') {
                 $amount = $orderData['amount'] ?? 0;
                 $transactionId = $orderData['orderId'] ?? 'UNKNOWN';
 
@@ -165,8 +167,6 @@ if ($token) {
                 $wpResponse["phone"] = $orderData['udf2'] ?? 'Unknown Phone';
                 $wpResponse["amount"] = $amount;
 	        }
-            markOrderAsProcessed($orderData['orderId']);
-        }
         $wpResponse["state"] = $orderData['state'];
         echo json_encode(['status' => 'success', 'wpResponse' => $wpResponse]);
     } else {

@@ -181,7 +181,7 @@
 
                         // Prepare invoice data
 const invoice = {
-    company: 'JD Foundation',
+    company: 'Jantri Devi (JD) Foundation',
     companyEmail: 'Jantrifoundation@gmail.com',
     companyPhone: '+91-89012-42757',
     userName: data.wpResponse.username || 'N/A',
@@ -224,7 +224,7 @@ downloadBtn.onclick = function() {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont(undefined, 'bold');
-    doc.text('JD FOUNDATION', 40, 20);
+    doc.text('Jantri Devi (JD) Foundation', 40, 16);
     
     // Invoice title
     doc.setFontSize(16);
@@ -234,6 +234,7 @@ downloadBtn.onclick = function() {
     doc.setTextColor(...lightGray);
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
+    doc.text('CIN: U85500HR2025NPL130241' , 40, 24);
     doc.text('Email: ' + invoice.companyEmail, 40, 28);
     doc.text('Phone: ' + invoice.companyPhone, 40, 32);
     
