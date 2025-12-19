@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PayU Payment | Test</title>
+    <style>
+        body {
+            background: url(/background.webp);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            background-size: cover;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+            margin: 20px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .company-name {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .paying-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .phone-input {
+            display: flex;
+        }
+
+        .country-code {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            border-right: none;
+        }
+
+        .phone-field {
+            border-radius: 0 8px 8px 0;
+            flex: 1;
+        }
+
+        .payu-button {
+            width: 100%;
+            padding: 14px;
+            background: #a6c307;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payu-button:hover {
+            background: #4a1e9e;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1f074f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0)
+            }
+
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-container">
+        <div class="logo-container">
+            <img src="/payu/payu-logo.png" alt="PayU" style="height:54px;">
+        </div>
+        <h2 class="company-name">Guruji Gyan Payments (PayU)</h2>
+
+        <form id="payuForm" method="POST" action="/payu/CreateOrder.php">
+            <div class="input-group">
+                <label for="firstname">Full name</label>
+                <input class="input-field" id="firstname" name="firstname" value="Bunty Soni" type="text" required>
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input class="input-field" id="email" name="email" value="pujasoni7877@gmail.com" type="email" required>
+            </div>
+
+            <div class="input-group">
+                <label for="phone">Phone</label>
+                <div class="phone-input">
+                    <div class="country-code">+91</div>
+                    <input class="input-field phone-field" id="phone" name="phone" value="9772211155" type="tel"
+                        required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="amount">Amount</label>
+                <input class="input-field" id="amount" name="amount" type="number" value="100" step="0.01" required>
+            </div>
+
+            <div class="input-group">
+                <label for="productinfo">Product Info</label>
+                <input class="input-field" id="productinfo" name="productinfo" type="text" value="Test Product">
+            </div>
+
+            <button type="button" id="payBtn" class="payu-button">Pay with PayU</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <div>Processing payment...</div>
+        </div>
+    </div>
+
+    <script>
+        const payBtn = document.getElementById('payBtn');
+        const loading = document.getElementById('loading');
+        const form = document.getElementById('payuForm');
+
+        payBtn.addEventListener('click', function () {
+            // simple validation
+            const firstname = document.getElementById('firstname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+
+            if (!firstname || !email || !phone || !amount) {
+                alert('Please fill all required fields.');
+                return;
+            }
+
+            loading.style.display = 'block';
+            // submit the form to server which will redirect to PayU
+            form.submit();
+        });
+    </script>
+</body>
+
+</html>
