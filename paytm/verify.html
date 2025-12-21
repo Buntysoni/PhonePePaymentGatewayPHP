@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Payment Status - Paytm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, #00BAF2 0%, #0088CC 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 48px 32px;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .icon-container.loading {
+            background: #f5f5f5;
+        }
+
+        .icon-container.success {
+            background: #E8F5E9;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .icon-container.failed {
+            background: #FFEBEE;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #4CAF50;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #4CAF50;
+            animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+        }
+
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #4CAF50;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+
+        .cross {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #F44336;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #F44336;
+            animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
+        }
+
+        .cross__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #F44336;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .cross__path {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top-color: #00BAF2;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        #title.success {
+            color: #2E7D32;
+        }
+
+        #title.failed {
+            color: #C62828;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #757575;
+            margin-bottom: 32px;
+        }
+
+        .transaction-info {
+            background: #F8F9FA;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .transaction-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .transaction-label {
+            font-size: 14px;
+            color: #757575;
+            font-weight: 500;
+        }
+
+        .transaction-value {
+            font-size: 14px;
+            color: #212121;
+            font-weight: 600;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        #txn {
+            color: #00BAF2;
+        }
+
+        #home {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 24px;
+            background: #00BAF2;
+            color: #ffffff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        #home:hover {
+            background: #0088CC;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 186, 242, 0.3);
+        }
+
+        #home:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 36px 24px;
+            }
+
+            #title {
+                font-size: 20px;
+            }
+
+            .transaction-info {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="card">
+        <div class="icon-container loading" id="iconContainer">
+            <div class="spinner"></div>
+        </div>
+        
+        <h2 id="title">Verifying Payment...</h2>
+        <p class="subtitle">Please wait while we confirm your transaction</p>
+        
+        <div class="transaction-info">
+            <div class="transaction-row">
+                <span class="transaction-label">Transaction ID</span>
+                <span class="transaction-value" id="txn">N/A</span>
+            </div>
+        </div>
+        
+        <a id="home" href="/paytm">Return to Home</a>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('ORDERID') || params.get('orderId') || params.get('order_id');
+        const txnEl = document.getElementById('txn');
+        const title = document.getElementById('title');
+        const iconContainer = document.getElementById('iconContainer');
+        
+        txnEl.textContent = orderId || 'N/A';
+
+        fetch('/paytm/VerifyPayment.php', { 
+            method: 'POST', 
+            body: JSON.stringify({ orderId: orderId }), 
+            headers: { 'Content-Type': 'application/json' } 
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const state = data.wpResponse.state;
+                if (state === 'COMPLETED') {
+                    // Success state
+                    title.textContent = 'Payment Successful!';
+                    title.classList.add('success');
+                    iconContainer.className = 'icon-container success';
+                    iconContainer.innerHTML = `
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    `;
+                } else {
+                    // Failed state
+                    title.textContent = 'Payment ' + state;
+                    title.classList.add('failed');
+                    iconContainer.className = 'icon-container failed';
+                    iconContainer.innerHTML = `
+                        <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="cross__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="cross__path" fill="none" d="M16 16 l20 20"/>
+                            <path class="cross__path" fill="none" d="M16 36 l20 -20"/>
+                        </svg>
+                    `;
+                }
+                txnEl.textContent = data.wpResponse.orderId || txnEl.textContent;
+            } else {
+                // Error state
+                title.textContent = 'Unable to Verify Payment';
+                title.classList.add('failed');
+                iconContainer.className = 'icon-container failed';
+                iconContainer.innerHTML = `
+                    <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="cross__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="cross__path" fill="none" d="M16 16 l20 20"/>
+                        <path class="cross__path" fill="none" d="M16 36 l20 -20"/>
+                    </svg>
+                `;
+            }
+        })
+        .catch(err => { 
+            console.error(err);
+            title.textContent = 'Error Checking Payment';
+            title.classList.add('failed');
+            iconContainer.className = 'icon-container failed';
+            iconContainer.innerHTML = `
+                <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="cross__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="cross__path" fill="none" d="M16 16 l20 20"/>
+                    <path class="cross__path" fill="none" d="M16 36 l20 -20"/>
+                </svg>
+            `;
+        });
+    });
+    </script>
+</body>
+</html>

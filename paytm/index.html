@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paytm Payment Gateway Integration</title>
+    <style>
+        body {
+            background-image: url(/paytm/bg.png);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-size: cover;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1f74d6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-container {
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: -50px auto 20px;
+        }
+
+        .logo {
+            height: 45px;
+            width: auto;
+        }
+
+        .paying-text { text-align: center; color: #666; margin-bottom: 8px; }
+        .company-name { text-align: center; font-size: 24px; font-weight: bold; color: #333; margin-bottom: 16px; }
+        .amount { text-align: center; color: #666; margin-bottom: 24px; }
+
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; color: #666; margin-bottom: 8px; }
+
+        .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .phone-input { display: flex; align-items: center; }
+        .country-code { padding: 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px 0 0 8px; border-right: none; }
+        .phone-field { border-radius: 0 8px 8px 0; }
+
+        .paytm-button {
+            width: 100%;
+            padding: 16px;
+            background: #1f74d6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .paytm-button:hover { background: #165fa8; }
+        .paytm-button:disabled { background: #cccccc; cursor: not-allowed; }
+
+        .paytm-logo { height: 24px; width: auto; }
+
+        #error-message { color: #d32f2f; margin-top: 10px; text-align: center; display: none; }
+
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="logo-container">
+            <img src="/paytm/logo.webp" class="logo" alt="Paytm">
+        </div>
+        <p class="paying-text">Paying</p>
+        <h1 class="company-name">Paytm Staging Payments</h1>
+        <p class="amount">Amount Payable: <span id="amount-display">₹ 100.00</span></p>
+
+        <div class="input-group">
+            <label>Enter your name</label>
+            <input type="text" class="input-field" id="user-name" value="Guruji Gyan" placeholder="Full Name">
+        </div>
+
+        <div class="input-group">
+            <label>Enter your email</label>
+            <input type="text" class="input-field" id="email" value="pujasoni7877@gmail.com" placeholder="Enter your email">
+        </div>
+
+        <div class="input-group">
+            <label>Enter your phone number</label>
+            <div class="phone-input">
+                <span class="country-code">+91</span>
+                <input type="tel" class="input-field phone-field" id="phone-number" value="9772211155" placeholder="Enter your number">
+            </div>
+        </div>
+
+        <div id="error-message"></div>
+        <button type="button" id="payBtn" class="paytm-button">
+            <img src="/paytm/paytm-logo.png" alt="Paytm Logo" class="paytm-logo">
+            Pay with Paytm
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Processing payment...</p>
+        </div>
+    </div>
+</body>
+<script>
+    var loader = document.getElementById("loading");
+    var userName = document.getElementById("user-name");
+    var email = document.getElementById("email");
+    var phoneNumber = document.getElementById("phone-number");
+    var amountField = document.getElementById("amount-display");
+
+    document.getElementById("payBtn").addEventListener("click", function () {
+        loader.style.display = 'block';
+        var payBtn = document.getElementById('payBtn');
+        payBtn.disabled = true;
+
+        var amount = document.getElementById('amount-display').textContent.replace(/[^0-9.]/g,'') || document.getElementById('amount').value || '100.00';
+
+        fetch('/paytm/CreateOrder.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                username: userName.value,
+                email: email.value,
+                phone: phoneNumber.value,
+                amount: amount
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            loader.style.display = 'none';
+            payBtn.disabled = false;
+
+            if (data.success && data.txnToken && data.showPaymentPage) {
+                // Build a form and POST txnToken to Paytm showPaymentPage
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = data.showPaymentPage;
+                const inpToken = document.createElement('input');
+                inpToken.type = 'hidden';
+                inpToken.name = 'txnToken';
+                inpToken.value = data.txnToken;
+                form.appendChild(inpToken);
+                const inpOrder = document.createElement('input');
+                inpOrder.type = 'hidden';
+                inpOrder.name = 'orderId';
+                inpOrder.value = data.orderId;
+                form.appendChild(inpOrder);
+                document.body.appendChild(form);
+                form.submit();
+                return;
+            }
+
+            if (data.success && data.form) {
+                // Fallback for older flow: Inject form HTML and submit it
+                const w = window.open('', '_self');
+                w.document.open();
+                w.document.write(data.form);
+                w.document.close();
+                return;
+            }
+
+            // Show error
+            var errDiv = document.getElementById('error-message');
+            errDiv.textContent = data.message || 'Create order failed';
+            errDiv.style.display = 'block';
+        })
+        .catch(err => {
+            loader.style.display = 'none';
+            payBtn.disabled = false;
+            console.error(err);
+            var errDiv = document.getElementById('error-message');
+            errDiv.textContent = 'Something went wrong. Check console.';
+            errDiv.style.display = 'block';
+        });
+    });
+</script>
+</html>
