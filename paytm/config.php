@@ -1,7 +1,7 @@
 <?php
 // Paytm test configuration (Staging)
-define('PAYTM_MERCHANT_ID', 'UbQBHp36072387143767');
-define('PAYTM_MERCHANT_KEY', 'A4llzOvIqSa5kr&J');
+define('PAYTM_MERCHANT_ID', '----');
+define('PAYTM_MERCHANT_KEY', '----');
 define('PAYTM_WEBSITE', 'WEBSTAGING');
 define('PAYTM_INDUSTRY_TYPE', 'Retail');
 define('PAYTM_CHANNEL_ID_WEB', 'WEB');

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stripe Checkout</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            box-sizing: border-box;
+            border-bottom: 5px solid gold;
+        }
+
+        body {
+            background-image: url(/stripe/bg.png);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /*background: linear-gradient(135deg, #4a1e9e, #7b2cbf);*/
+            background-size: cover;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            border: 1px solid black;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1f074f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo-container {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: -50px auto 20px;
+            border-top: 1px solid black;
+        }
+
+        .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            width: 45px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .paying-text {
+            text-align: center;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .company-name {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .amount {
+            text-align: center;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .phone-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .country-code {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            border-right: none;
+        }
+
+        .phone-field {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .coupon-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .coupon-field-container {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .coupon-field-container.visible {
+            display: block;
+        }
+
+        .coupon-status {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            color: #2e7d32;
+        }
+
+        .error-message {
+            color: #d32f2f;
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 16px;
+            background: #ebebeb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pay-button:hover {
+            background: #4a1e9e;
+        }
+
+        .pay-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .phonepe-logo {
+            height: 24px;
+            width: auto;
+        }
+
+        #error-message {
+            color: #d32f2f;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .original-amount {
+            text-decoration: line-through;
+            color: #999;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-container">
+        <div class="logo-container">
+            <img src="/stripe/stripe-logo.png" alt="PayU" style="height:46px;">
+        </div>
+        <h2 class="company-name">Guruji Gyan Payments (Stripe)</h2>
+
+        <form id="payuForm" method="POST">
+            <div class="input-group">
+                <label for="firstname">Full name</label>
+                <input id="name" class="input-field" placeholder="Full name" value="Guruji Gyan">
+            </div>
+
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input id="email" class="input-field" placeholder="Email" value="pujasoni7877@gmail.com">
+            </div>
+
+            <div class="input-group">
+                <label for="phone">Phone</label>
+                <div class="phone-input">
+                    <div class="country-code">+91</div>
+                    <input id="phone" class="input-field" placeholder="Phone" value="9772211155">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="amount">Amount</label>
+                <input id="amount" class="input-field" placeholder="Amount (INR)" value="100.00">
+            </div>
+
+            <button type="button" id="payBtn" class="pay-button"><span style="color: #000;">
+                    Pay with Stripe</span></button>
+        </form>
+
+        <div id="msg" style="margin-top:12px;color:#d32f2f;display:none"></div>
+
+    </div>
+
+    <script>
+        const stripe = Stripe('PublishableKeyHere');
+
+        document.getElementById('payBtn').addEventListener('click', function () {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const amount = document.getElementById('amount').value;
+
+            const payload = { username: name, email: email, phone: phone, amount: amount };
+
+            fetch('/stripe/CreateOrder.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.session_id) {
+                        document.getElementById('msg').innerText = 'Failed to create session';
+                        document.getElementById('msg').style.display = 'block';
+                        return;
+                    }
+
+                    stripe.redirectToCheckout({ sessionId: data.session_id }).then(function (result) {
+                        if (result.error) {
+                            document.getElementById('msg').innerText = result.error.message;
+                            document.getElementById('msg').style.display = 'block';
+                        }
+                    });
+                })
+                .catch(err => {
+                    document.getElementById('msg').innerText = 'Network error';
+                    document.getElementById('msg').style.display = 'block';
+                    console.error(err);
+                });
+        });
+    </script>
+</body>
+
+</html>
