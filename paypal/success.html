@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PayPal Payment Status</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#f3f6fb,#e6eefc); margin:0; height:100vh; display:flex; align-items:center; justify-content:center }
+    .status-container { background:#fff; border-radius:12px; padding:20px; width:92%; max-width:420px; box-shadow:0 6px 18px rgba(0,0,0,0.06); text-align:center; margin: 20px; }
+    .title { font-size:20px; margin-bottom:8px }
+    .sub { color:#666; margin-bottom:18px }
+    .success { color:#2e7d32 }
+    .failure { color:#ad0808 }
+    .loader { margin: 18px auto; width: 40px; height: 40px; border:4px solid #e9e9e9; border-top-color:#7b2cbf; border-radius:50%; animation:spin 1s linear infinite }
+    @keyframes spin {0% {transform:rotate(0)} 100% {transform:rotate(360deg)}}
+    .details { text-align:left; background:#f7f7f9; padding:12px; border-radius:8px; font-family:monospace; font-size:13px; white-space:pre-wrap; word-break:break-word;    height: 100px;
+    overflow-y: auto; }
+    .btn { display:inline-block; padding:10px 16px; background:#7b2cbf; color:#fff; text-decoration:none; border-radius:8px; margin-top:12px }
+  </style>
+</head>
+<body>
+  <div class="status-container" id="container">
+    <div class="title" id="title">Verifying payment...</div>
+    <div class="sub" id="sub">Please wait while we confirm your payment with PayPal.</div>
+    <div id="loader" class="loader"></div>
+    <div id="details" class="details" style="display:none"></div>
+    <a href="/paypal/index.html" class="btn" id="homeBtn" style="display:none">Back to PayPal</a>
+  </div>
+
+  <script>
+(function () {
+
+  function q(name){
+    return new URLSearchParams(location.search).get(name) || '';
+  }
+
+  const orderID = q('orderID');
+  const title   = document.getElementById('title');
+  const sub     = document.getElementById('sub');
+  const loader  = document.getElementById('loader');
+  const details = document.getElementById('details');
+  const homeBtn = document.getElementById('homeBtn');
+
+  if (!orderID) {
+    title.innerText = 'Missing order ID';
+    sub.innerText   = 'No PayPal order id was provided in the URL.';
+    loader.style.display = 'none';
+    homeBtn.style.display = '';
+    return;
+  }
+
+  fetch('/paypal/VerifyPayment.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderID })
+  })
+  .then(r => r.json())
+  .then(resp => {
+
+    loader.style.display = 'none';
+    homeBtn.style.display = '';
+
+    if (resp && resp.status === 'COMPLETED') {
+
+      title.innerText = 'Payment Successful!';
+      title.classList.add('success');
+      sub.innerText = 'Your payment was captured successfully.';
+
+      let captureId = 'N/A';
+      try {
+        captureId =
+          resp.purchase_units[0]
+              .payments.captures[0]
+              .id || 'N/A';
+      } catch(e){}
+
+      details.style.display = '';
+      details.innerText =
+        'Order ID: ' + orderID +
+        '\nCapture ID: ' + captureId +
+        '\n\nFull response:\n' + JSON.stringify(resp, null, 2);
+
+    } else {
+
+      title.innerText = 'Payment Failed';
+      title.classList.add('failure');
+      sub.innerText = resp?.message || 'Unable to verify payment.';
+
+      details.style.display = '';
+      details.innerText = JSON.stringify(resp, null, 2);
+    }
+
+  })
+  .catch(err => {
+
+    loader.style.display = 'none';
+    homeBtn.style.display = '';
+
+    title.innerText = 'Server error';
+    title.classList.add('failure');
+    sub.innerText = 'Unable to verify payment now.';
+
+    details.style.display = '';
+    details.innerText = String(err);
+
+    console.error(err);
+  });
+
+})();
+</script>
+</body>
+</html>
